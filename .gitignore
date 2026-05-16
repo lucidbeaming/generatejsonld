@@ -153,6 +153,12 @@ vite.config.ts.timestamp-*
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
+# Project plans
+PLAN.md
+
+# Runtime output
+sessions/
+
 # Claude / LLM
 .claude/
 .cursor/
