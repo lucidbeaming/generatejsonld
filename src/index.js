@@ -3,7 +3,11 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+const envPath = path.resolve(__dirname, '../.env');
+const envResult = dotenv.config({ path: envPath });
+if (envResult.error) {
+  console.warn(`[warn] Could not load .env file at ${envPath}: ${envResult.error.message}`);
+}
 import { Command } from 'commander';
 import inquirer from 'inquirer';
 import ora from 'ora';
