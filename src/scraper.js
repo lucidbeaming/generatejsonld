@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 
-const SKIP_EXTENSIONS = /\.(pdf|zip|png|jpg|jpeg|gif|webp|svg|css|js|xml|json|ico|woff|woff2|ttf|eot|mp4|mp3|avi|mov)$/i;
+const SKIP_EXTENSIONS =
+  /\.(pdf|zip|png|jpg|jpeg|gif|webp|svg|css|js|xml|json|ico|woff|woff2|ttf|eot|mp4|mp3|avi|mov)$/i;
 
 export async function crawl(rootUrl, { maxPages = 100, concurrency = 3, onProgress } = {}) {
   const origin = new URL(rootUrl).origin;
@@ -16,8 +17,8 @@ export async function crawl(rootUrl, { maxPages = 100, concurrency = 3, onProgre
 
   async function processUrl(url) {
     active++;
-    let html = null;
-    let statusCode = null;
+    let html;
+    let statusCode;
 
     try {
       const page = await browser.newPage();
@@ -38,9 +39,11 @@ export async function crawl(rootUrl, { maxPages = 100, concurrency = 3, onProgre
       html = await page.content();
 
       const links = await page.evaluate((pageOrigin) => {
+        // eslint-disable-next-line no-undef
         return Array.from(document.querySelectorAll('a[href]'))
           .map((a) => {
             try {
+              // eslint-disable-next-line no-undef
               const u = new URL(a.href, window.location.href);
               return u.origin === pageOrigin ? u.href : null;
             } catch {
