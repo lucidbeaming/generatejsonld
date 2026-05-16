@@ -60,11 +60,14 @@ export function convertToMarkdown({ url, html }) {
       for (const entry of entries) {
         if (entry['@type']) hints.push({ type: entry['@type'], name: entry.name || '' });
       }
-    } catch {}
+    } catch (_e) {
+      /* invalid JSON-LD block — skip */
+    }
   });
 
   const hintsYaml = hints.length
-    ? 'structured_data_hints:\n' + hints.map((h) => `  - type: ${h.type}\n    name: "${h.name}"`).join('\n')
+    ? 'structured_data_hints:\n' +
+      hints.map((h) => `  - type: ${h.type}\n    name: "${h.name}"`).join('\n')
     : 'structured_data_hints: []';
 
   const frontMatter = [

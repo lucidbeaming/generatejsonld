@@ -1,6 +1,6 @@
 {
   "name": "generatejsonld",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Scrape a website and generate JSON-LD structured data for each page using AI",
   "type": "module",
   "main": "index.js",
@@ -12,7 +12,11 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "node --test"
+    "test": "node --test",
+    "lint": "eslint src/ index.js",
+    "lint:fix": "eslint src/ index.js --fix",
+    "format": "prettier --write src/ index.js *.js *.json",
+    "format:check": "prettier --check src/ index.js *.js *.json"
   },
   "repository": {
     "type": "git",
@@ -34,5 +38,12 @@
     "ora": "^8.0.0",
     "playwright": "^1.44.0",
     "turndown": "^7.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3"
   }
 }
