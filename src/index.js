@@ -57,9 +57,21 @@ function validateOptions(opts) {
 async function main() {
   const options = validateOptions(opts);
 
+  log.header('generatejsonld');
+  log.summary([
+    ['Target URL', options.url],
+    ['Max pages', options.maxPages],
+    ['Concurrency', options.concurrency],
+    ['Model', options.model],
+    ['Output', options.output],
+    ['Mode', options.dryRun ? 'dry run' : 'full'],
+  ]);
+
   if (!process.env.MISTRAL_API_KEY) {
     if (options.dryRun) {
-      log.warn('MISTRAL_API_KEY is not set. JSON-LD generation will fail if you proceed past dry run.');
+      log.warn(
+        'MISTRAL_API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.'
+      );
     } else {
       log.error('MISTRAL_API_KEY is not set. Add it to your .env file.');
       process.exit(1);
@@ -72,6 +84,7 @@ async function main() {
     log.info(`Session folder: ${sessionFolder}`);
   }
 
+  log.header('Crawling');
   const spinner = ora(`Crawling ${options.url} ...`).start();
   let results;
   try {
@@ -90,17 +103,27 @@ async function main() {
   spinner.succeed(`Crawled ${results.length} page(s)`);
 
   if (options.dryRun) {
-    log.info('Dry run — pages that would be processed:');
-    results.forEach((r, i) => log.dim(`  ${i + 1}. ${r.url}${r.error ? ' [ERROR: ' + r.error + ']' : ''}`));
+    log.header('Pages found (dry run)');
+    const ok = results.filter((r) => !r.error);
+    const failed = results.filter((r) => r.error);
+    ok.forEach((r, i) => log.page(i + 1, ok.length, r.url));
+    failed.forEach((r) => log.warn(`  skipped: ${r.url} — ${r.error}`));
+    log.summary([
+      ['Pages found', ok.length],
+      ['Errors', failed.length],
+      ['Files written', '0 (dry run)'],
+    ]);
     log.info('Exiting (dry run). No files written.');
     process.exit(0);
   }
 
-  const mdSpinner = ora('Converting pages to Markdown...').start();
+  log.header('Converting to Markdown');
+  const mdSpinner = ora('Converting...').start();
   const markdownFiles = [];
 
   for (const result of results) {
     if (!result.html) {
+      mdSpinner.clear();
       log.warn(`Skipping ${result.url} — no HTML (${result.error ?? 'unknown error'})`);
       continue;
     }
@@ -109,6 +132,8 @@ async function main() {
     const mdPath = path.join(sessionFolder, 'markdown', `${stem}.md`);
     await writeFile(mdPath, md);
     markdownFiles.push({ mdPath, url: result.url });
+    mdSpinner.clear();
+    log.page(markdownFiles.length, results.filter((r) => r.html).length, result.url);
   }
   mdSpinner.succeed(`Wrote ${markdownFiles.length} Markdown file(s)`);
 
@@ -122,7 +147,10 @@ async function main() {
       markdownFile: path.relative(sessionFolder, f.mdPath),
     })),
   };
-  await writeFile(path.join(sessionFolder, 'session.json'), JSON.stringify(sessionMeta, null, 2) + '\n');
+  await writeFile(
+    path.join(sessionFolder, 'session.json'),
+    JSON.stringify(sessionMeta, null, 2) + '\n'
+  );
 
   if (options.confirm !== false) {
     const { proceed } = await inquirer.prompt([
@@ -139,27 +167,25 @@ async function main() {
     }
   }
 
-  const genSpinner = ora('Generating JSON-LD...').start();
+  log.header('Generating JSON-LD');
+  const genSpinner = ora('Sending pages to Mistral...').start();
   const jsonldResults = await generateAllJsonLd(sessionFolder, markdownFiles, {
     model: options.model,
     apiKey: process.env.MISTRAL_API_KEY,
-    onProgress: (url, i, total) => {
-      genSpinner.text = `Generating JSON-LD [${i}/${total}]: ${url}`;
+    onProgress: (_url, _i, _total) => {
+      genSpinner.clear();
     },
   });
-  genSpinner.succeed(`Generated JSON-LD for ${jsonldResults.filter((r) => !r.error).length} page(s)`);
+  genSpinner.succeed(`JSON-LD generation complete`);
 
+  const jsonldOk = jsonldResults.filter((r) => !r.error).length;
   const jsonldErrors = jsonldResults.filter((r) => r.error);
-  if (jsonldErrors.length) {
-    log.warn(`${jsonldErrors.length} page(s) failed JSON-LD generation:`);
-    jsonldErrors.forEach((r) => log.dim(`  ${r.url}: ${r.error}`));
-  }
 
   const completedAt = new Date().toISOString();
   const updatedMeta = {
     ...sessionMeta,
     completedAt,
-    jsonldCount: jsonldResults.filter((r) => !r.error).length,
+    jsonldCount: jsonldOk,
     pages: markdownFiles.map((f, i) => ({
       url: f.url,
       markdownFile: path.relative(sessionFolder, f.mdPath),
@@ -167,9 +193,21 @@ async function main() {
       error: jsonldResults[i]?.error ?? null,
     })),
   };
-  await writeFile(path.join(sessionFolder, 'session.json'), JSON.stringify(updatedMeta, null, 2) + '\n');
+  await writeFile(
+    path.join(sessionFolder, 'session.json'),
+    JSON.stringify(updatedMeta, null, 2) + '\n'
+  );
 
-  log.success(`Done! Output at: ${sessionFolder}`);
+  log.header('Summary');
+  log.summary([
+    ['Pages crawled', results.length],
+    ['Markdown files', markdownFiles.length],
+    ['JSON-LD files', jsonldOk],
+    ['Errors', jsonldErrors.length || 'none'],
+    ['Session folder', sessionFolder],
+    ['Completed at', completedAt],
+  ]);
+  log.success('Done!');
 }
 
 main().catch((err) => {

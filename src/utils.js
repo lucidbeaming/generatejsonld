@@ -8,6 +8,21 @@ export const log = {
   warn: (msg) => console.log(chalk.yellow('[warn]'), msg),
   error: (msg) => console.error(chalk.red('[error]'), msg),
   dim: (msg) => console.log(chalk.dim(msg)),
+  page: (i, total, url) =>
+    console.log(
+      chalk.dim(`  [${String(i).padStart(String(total).length)}/${total}]`),
+      chalk.white(url)
+    ),
+  retry: (attempt, max, reason) =>
+    console.log(chalk.yellow(`  [retry ${attempt}/${max}]`), chalk.dim(reason)),
+  header: (msg) => console.log('\n' + chalk.bold.underline(msg)),
+  summary: (rows) => {
+    console.log('');
+    for (const [label, value] of rows) {
+      console.log(' ', chalk.dim(label.padEnd(20)), chalk.white(value));
+    }
+    console.log('');
+  },
 };
 
 export async function createSessionFolder(baseOutput, rootUrl) {

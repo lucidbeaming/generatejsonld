@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { log } from './utils.js';
 
 const SKIP_EXTENSIONS =
   /\.(pdf|zip|png|jpg|jpeg|gif|webp|svg|css|js|xml|json|ico|woff|woff2|ttf|eot|mp4|mp3|avi|mov)$/i;
@@ -36,6 +37,9 @@ export async function crawl(rootUrl, { maxPages = 100, concurrency = 3, onProgre
 
       const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
       statusCode = response?.status() ?? null;
+      if (statusCode && statusCode >= 400) {
+        log.warn(`HTTP ${statusCode}: ${url}`);
+      }
       html = await page.content();
 
       const links = await page.evaluate((pageOrigin) => {

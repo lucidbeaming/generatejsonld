@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Mistral } from '@mistralai/mistralai';
-import { writeFile } from './utils.js';
+import { writeFile, log } from './utils.js';
 
 const SYSTEM_PROMPT = `You are a structured data specialist with deep expertise in Schema.org JSON-LD markup.
 
@@ -37,7 +37,9 @@ async function withRetry(fn, retries = 3) {
       return await fn();
     } catch (err) {
       if (i === retries - 1) throw err;
-      await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, i)));
+      const delay = 1000 * Math.pow(2, i);
+      log.retry(i + 1, retries - 1, `${err.message} — waiting ${delay / 1000}s`);
+      await new Promise((r) => setTimeout(r, delay));
     }
   }
 }
@@ -62,7 +64,11 @@ export async function generateJsonLd(markdownContent, url, { model, apiKey }) {
   return raw;
 }
 
-export async function generateAllJsonLd(sessionFolder, markdownFiles, { model, apiKey, onProgress }) {
+export async function generateAllJsonLd(
+  sessionFolder,
+  markdownFiles,
+  { model, apiKey, onProgress }
+) {
   const completedFiles = [];
 
   for (let i = 0; i < markdownFiles.length; i++) {
@@ -75,8 +81,10 @@ export async function generateAllJsonLd(sessionFolder, markdownFiles, { model, a
       const jsonld = await generateJsonLd(markdownContent, url, { model, apiKey });
       await writeFile(jsonldPath, jsonld + '\n');
       completedFiles.push({ url, jsonldFile: path.relative(sessionFolder, jsonldPath) });
+      log.page(i + 1, markdownFiles.length, url);
     } catch (err) {
       completedFiles.push({ url, error: err.message });
+      log.warn(`  [${i + 1}/${markdownFiles.length}] failed: ${url} — ${err.message}`);
     }
 
     if (onProgress) onProgress(url, i + 1, markdownFiles.length);
