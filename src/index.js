@@ -73,6 +73,8 @@ async function main() {
     ['Model', options.model],
     ['Output', options.output],
     ['Mode', options.dryRun ? 'dry run' : 'full'],
+    ['.env path', envPath],
+    ['API key loaded', process.env.MISTRAL_API_KEY ? 'yes' : 'no'],
   ]);
 
   if (!process.env.MISTRAL_API_KEY) {
