@@ -73,7 +73,6 @@ async function main() {
     ['Model', options.model],
     ['Output', options.output],
     ['Mode', options.dryRun ? 'dry run' : 'full'],
-    ['.env path', envPath],
     ['API key loaded', process.env.API_KEY ? 'yes' : 'no'],
   ]);
 
