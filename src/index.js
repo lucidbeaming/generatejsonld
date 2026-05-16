@@ -13,7 +13,7 @@ const program = new Command();
 program
   .name('generatejsonld')
   .description('Scrape a website and generate JSON-LD structured data for each page using AI')
-  .version('1.0.0')
+  .version('1.0.1')
   .requiredOption('--url <url>', 'Root URL to crawl (must be http or https)')
   .option('--output <path>', 'Parent directory for session folders', './sessions')
   .option('--dry-run', 'Spider only — print pages that would be processed, then exit')
