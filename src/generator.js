@@ -60,8 +60,9 @@ export async function generateJsonLd(markdownContent, url, { model, apiKey }) {
     return response.choices[0].message.content;
   });
 
-  JSON.parse(raw);
-  return raw;
+  const parsed = JSON.parse(raw);
+  const pretty = JSON.stringify(parsed, null, 2);
+  return `<script type="application/ld+json">\n${pretty}\n</script>`;
 }
 
 export async function generateAllJsonLd(
@@ -74,7 +75,7 @@ export async function generateAllJsonLd(
   for (let i = 0; i < markdownFiles.length; i++) {
     const { mdPath, url } = markdownFiles[i];
     const stem = path.basename(mdPath, '.md');
-    const jsonldPath = path.join(sessionFolder, 'jsonld', `${stem}.jsonld`);
+    const jsonldPath = path.join(sessionFolder, 'jsonld', `${stem}.html`);
 
     try {
       const markdownContent = await fs.readFile(mdPath, 'utf8');
