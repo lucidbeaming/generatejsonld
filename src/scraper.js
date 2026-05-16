@@ -84,7 +84,7 @@ export async function crawl(rootUrl, { maxPages = 100, concurrency = 3, onProgre
   const workers = [];
 
   async function drain() {
-    while (queue.length > 0 || active > 0) {
+    while (active > 0 || (queue.length > 0 && results.length < maxPages)) {
       while (queue.length > 0 && active < concurrency && results.length + active < maxPages) {
         const url = queue.shift();
         workers.push(processUrl(url));

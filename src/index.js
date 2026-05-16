@@ -1,5 +1,13 @@
-import 'dotenv/config';
+import { fileURLToPath } from 'url';
 import path from 'path';
+import dotenv from 'dotenv';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.resolve(__dirname, '../.env');
+const envResult = dotenv.config({ path: envPath });
+if (envResult.error) {
+  console.warn(`[warn] Could not load .env file at ${envPath}: ${envResult.error.message}`);
+}
 import { Command } from 'commander';
 import inquirer from 'inquirer';
 import ora from 'ora';
@@ -20,7 +28,7 @@ program
   .option('--max-pages <n>', 'Maximum number of pages to crawl', '100')
   .option('--concurrency <n>', 'Parallel Playwright pages during crawl', '3')
   .option('--selector <css>', 'CSS selector for content extraction', 'body')
-  .option('--model <name>', 'Mistral model ID', process.env.MISTRAL_MODEL || 'mistral-large-latest')
+  .option('--model <name>', 'Mistral model ID', process.env.MISTRAL_CHAT_MODEL || 'mistral-large-latest')
   .option('--no-confirm', 'Skip the confirmation prompt before JSON-LD generation');
 
 program.parse();
@@ -65,15 +73,16 @@ async function main() {
     ['Model', options.model],
     ['Output', options.output],
     ['Mode', options.dryRun ? 'dry run' : 'full'],
+    ['API key loaded', process.env.API_KEY ? 'yes' : 'no'],
   ]);
 
-  if (!process.env.MISTRAL_API_KEY) {
+  if (!process.env.API_KEY) {
     if (options.dryRun) {
       log.warn(
-        'MISTRAL_API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.'
+        'API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.'
       );
     } else {
-      log.error('MISTRAL_API_KEY is not set. Add it to your .env file.');
+      log.error('API_KEY is not set. Add it to your .env file.');
       process.exit(1);
     }
   }
@@ -171,7 +180,7 @@ async function main() {
   const genSpinner = ora('Sending pages to Mistral...').start();
   const jsonldResults = await generateAllJsonLd(sessionFolder, markdownFiles, {
     model: options.model,
-    apiKey: process.env.MISTRAL_API_KEY,
+    apiKey: process.env.API_KEY,
     onProgress: (_url, _i, _total) => {
       genSpinner.clear();
     },
