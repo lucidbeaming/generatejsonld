@@ -9,7 +9,7 @@ if (envResult.error) {
   console.warn(`[warn] Could not load .env file at ${envPath}: ${envResult.error.message}`);
 }
 import { Command } from 'commander';
-import inquirer from 'inquirer';
+import { confirm } from '@inquirer/prompts';
 import ora from 'ora';
 import { crawl } from './scraper.js';
 import { convertToMarkdown } from './converter.js';
@@ -162,14 +162,10 @@ async function main() {
   );
 
   if (options.confirm !== false) {
-    const { proceed } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'proceed',
-        message: `Begin JSON-LD generation for ${markdownFiles.length} page(s)?`,
-        default: false,
-      },
-    ]);
+    const proceed = await confirm({
+      message: `Begin JSON-LD generation for ${markdownFiles.length} page(s)?`,
+      default: false,
+    });
     if (!proceed) {
       log.warn('Aborted. Markdown files saved at: ' + path.join(sessionFolder, 'markdown'));
       process.exit(0);
