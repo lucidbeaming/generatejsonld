@@ -28,7 +28,11 @@ program
   .option('--max-pages <n>', 'Maximum number of pages to crawl', '100')
   .option('--concurrency <n>', 'Parallel Playwright pages during crawl', '3')
   .option('--selector <css>', 'CSS selector for content extraction', 'body')
-  .option('--model <name>', 'Mistral model ID', process.env.MISTRAL_CHAT_MODEL || 'mistral-large-latest')
+  .option(
+    '--model <name>',
+    'Mistral model ID',
+    process.env.MISTRAL_CHAT_MODEL || 'mistral-large-latest'
+  )
   .option('--no-confirm', 'Skip the confirmation prompt before JSON-LD generation');
 
 program.parse();
@@ -78,9 +82,7 @@ async function main() {
 
   if (!process.env.API_KEY) {
     if (options.dryRun) {
-      log.warn(
-        'API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.'
-      );
+      log.warn('API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.');
     } else {
       log.error('API_KEY is not set. Add it to your .env file.');
       process.exit(1);
