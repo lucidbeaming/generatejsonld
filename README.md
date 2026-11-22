@@ -14,7 +14,7 @@ A headless Node.js CLI that crawls a website, converts each page to Markdown, an
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 22.12+
 - A [Mistral AI API key](https://console.mistral.ai/api-keys)
 
 ## Installation

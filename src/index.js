@@ -9,7 +9,7 @@ if (envResult.error) {
   console.warn(`[warn] Could not load .env file at ${envPath}: ${envResult.error.message}`);
 }
 import { Command } from 'commander';
-import inquirer from 'inquirer';
+import { confirm } from '@inquirer/prompts';
 import ora from 'ora';
 import { crawl } from './scraper.js';
 import { convertToMarkdown } from './converter.js';
@@ -28,7 +28,11 @@ program
   .option('--max-pages <n>', 'Maximum number of pages to crawl', '100')
   .option('--concurrency <n>', 'Parallel Playwright pages during crawl', '3')
   .option('--selector <css>', 'CSS selector for content extraction', 'body')
-  .option('--model <name>', 'Mistral model ID', process.env.MISTRAL_CHAT_MODEL || 'mistral-large-latest')
+  .option(
+    '--model <name>',
+    'Mistral model ID',
+    process.env.MISTRAL_CHAT_MODEL || 'mistral-large-latest'
+  )
   .option('--no-confirm', 'Skip the confirmation prompt before JSON-LD generation');
 
 program.parse();
@@ -78,9 +82,7 @@ async function main() {
 
   if (!process.env.API_KEY) {
     if (options.dryRun) {
-      log.warn(
-        'API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.'
-      );
+      log.warn('API_KEY is not set — JSON-LD generation will fail if you proceed past dry run.');
     } else {
       log.error('API_KEY is not set. Add it to your .env file.');
       process.exit(1);
@@ -162,14 +164,10 @@ async function main() {
   );
 
   if (options.confirm !== false) {
-    const { proceed } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'proceed',
-        message: `Begin JSON-LD generation for ${markdownFiles.length} page(s)?`,
-        default: false,
-      },
-    ]);
+    const proceed = await confirm({
+      message: `Begin JSON-LD generation for ${markdownFiles.length} page(s)?`,
+      default: false,
+    });
     if (!proceed) {
       log.warn('Aborted. Markdown files saved at: ' + path.join(sessionFolder, 'markdown'));
       process.exit(0);
