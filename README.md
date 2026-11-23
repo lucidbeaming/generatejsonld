@@ -123,4 +123,4 @@ npm run format:check  # verify formatting (no writes)
 
 ## License
 
-Apache 2.0
+[MIT](LICENSE). Releases before this change were published under Apache-2.0, and those copies keep that license.
