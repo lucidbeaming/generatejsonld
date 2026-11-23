@@ -14,6 +14,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - Requires Node 22.12 or newer (`engines.node`, README), as commander 15 does (#3)
 - Source formatted with Prettier (#3)
 
+### Fixed
+
+- JSON-LD generation works with reasoning models such as the default `mistral-large-latest`, which return content as chunks; every page failed with `"[object Obj"... is not valid JSON` (#9)
+
 ### Security
 
 - Resolved 4 high and 3 moderate npm advisories (#3)
