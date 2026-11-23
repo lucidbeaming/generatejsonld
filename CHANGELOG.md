@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- `.gitignore`: editor files (`.vscode/*` keeping `extensions.json`, `.idea/`, Sublime workspaces), Windows thumbnails, explicit `!.env-example` (#7)
 - Relicensed from Apache-2.0 to MIT; earlier releases keep Apache-2.0 (#5)
 - Package metadata: `repository`, `bugs` and `homepage` in `package.json` (#5)
 - @mistralai/mistralai 3, commander 15, chalk 6, ora 10, dotenv 18, Playwright 1.65 (#3)
