@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-23
+
+Works again with the default model, `mistral-large-latest`, which now returns reasoning chunks. Moves to Mistral SDK 3 and current dependencies (npm audit: 0), requires Node 22.12+, and corrects the README (`API_KEY`, `MISTRAL_CHAT_MODEL`, `.html` output files).
+
 ### Added
 
 - README: sample output, `--selector`, configuration table, How it works, related projects (#11)
@@ -30,3 +34,6 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [1.0.1]
 
 Released before this changelog was kept.
+
+[Unreleased]: https://github.com/lucidbeaming/generatejsonld/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/lucidbeaming/generatejsonld/releases/tag/v1.1.0
