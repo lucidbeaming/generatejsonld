@@ -44,6 +44,19 @@ async function withRetry(fn, retries = 3) {
   }
 }
 
+// Reasoning models (e.g. mistral-large-latest) return content as an array of
+// chunks, with "thinking" before the answer; only the "text" chunks are JSON.
+function contentToText(content) {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .filter((chunk) => chunk.type === 'text')
+      .map((chunk) => chunk.text)
+      .join('');
+  }
+  return '';
+}
+
 export async function generateJsonLd(markdownContent, url, { model, apiKey }) {
   const client = new Mistral({ apiKey });
 
@@ -57,7 +70,7 @@ export async function generateJsonLd(markdownContent, url, { model, apiKey }) {
       responseFormat: { type: 'json_object' },
       temperature: 0.1,
     });
-    return response.choices[0].message.content;
+    return contentToText(response.choices[0].message.content);
   });
 
   const parsed = JSON.parse(raw);
