@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- README: sample output, `--selector`, configuration table, How it works, related projects (#11)
+
 ### Changed
 
 - `.gitignore`: editor files (`.vscode/*` keeping `extensions.json`, `.idea/`, Sublime workspaces), Windows thumbnails, explicit `!.env-example` (#7)
@@ -16,6 +20,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
+- README used the wrong variable names (`MISTRAL_API_KEY`, `MISTRAL_MODEL`; the code reads `API_KEY`, `MISTRAL_CHAT_MODEL`) and the wrong JSON-LD file extension (#11)
 - JSON-LD generation works with reasoning models such as the default `mistral-large-latest`, which return content as chunks; every page failed with `"[object Obj"... is not valid JSON` (#9)
 
 ### Security
