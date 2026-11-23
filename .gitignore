@@ -69,6 +69,7 @@ web_modules/
 .env
 .env.*
 !.env.example
+!.env-example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -152,6 +153,13 @@ vite.config.ts.timestamp-*
 .fseventsd
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.sublime-workspace
 
 # Project plans
 PLAN.md
