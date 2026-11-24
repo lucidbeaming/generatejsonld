@@ -2,6 +2,8 @@
 
 CLI that crawls a site and generates Schema.org JSON-LD with Mistral.
 
+Documentation: [joshuacurry.dev/generatejsonld](https://joshuacurry.dev/generatejsonld)
+
 Given a bakery's home page that says *"Neighborhood bakery at 412 Harbor Street, Oakland, CA 94607. Open Tuesday to Sunday, 7am to 3pm."*, it writes:
 
 ```html
